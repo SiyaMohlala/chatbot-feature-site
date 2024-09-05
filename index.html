@@ -78,30 +78,6 @@
             flex-direction: column;
             padding: 20px;
         }
-
-        #text-input {
-            padding: 10px;
-            font-size: 16px;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #e0f7ff; /* Light blue background for input */
-        }
-
-        #send-button {
-            background-color: #004c8c; /* Darker blue for send button */
-            color: white;
-            border: none;
-            padding: 10px;
-            margin-top: 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        #send-button:hover {
-            background-color: #003b6b; /* Slightly darker blue on hover */
-        }
     </style>
 </head>
 <body>
@@ -109,10 +85,7 @@
         <div id="chat-window">
             <div id="chat-content"></div>
         </div>
-        <div id="user-input">
-            <input type="text" id="text-input" placeholder="Type your response..." />
-            <button id="send-button">Send</button>
-        </div>
+        <div id="user-input"></div>
     </div>
     <script>
         const questions = {
@@ -193,8 +166,6 @@
 
         const chatContent = document.getElementById('chat-content');
         const userInput = document.getElementById('user-input');
-        const textInput = document.getElementById('text-input');
-        const sendButton = document.getElementById('send-button');
 
         function displayMessage(message, type) {
             const messageDiv = document.createElement('div');
@@ -202,7 +173,7 @@
             messageDiv.classList.add(type === 'bot' ? 'bot-message' : 'user-message');
             messageDiv.textContent = message;
             chatContent.appendChild(messageDiv);
-            chatContent.scrollTop = chatContent.scrollHeight;
+            chatContent.scrollTop = chatContent.scrollHeight; // Automatic scrolling
         }
 
         function loadQuestion(step) {
@@ -210,13 +181,7 @@
             displayMessage(currentStep.question, 'bot');
             
             if (currentStep.link) {
-                // Redirect to the link if it's a link step
                 window.location.href = currentStep.link;
-                return;
-            }
-
-            if (Object.keys(currentStep.options).length === 0) {
-                displayMessage("End of process.", 'bot');
                 return;
             }
 
@@ -230,36 +195,6 @@
                     loadQuestion(nextStep);
                 });
                 userInput.appendChild(button);
-            }
-
-            if (step !== "buyOrConsult") {
-                // Append the text input field for all steps except "buyOrConsult"
-                const inputField = document.createElement('input');
-                inputField.type = 'text';
-                inputField.id = 'text-input';
-                inputField.placeholder = 'Type your response...';
-                userInput.appendChild(inputField);
-
-                // Append the send button
-                const sendBtn = document.createElement('button');
-                sendBtn.id = 'send-button';
-                sendBtn.textContent = 'Send';
-                sendBtn.addEventListener('click', () => {
-                    const userInputText = inputField.value.trim();
-                    if (userInputText !== '') {
-                        // Check if the typed response matches any available options
-                        const matchedOption = Object.keys(currentStep.options).find(
-                            option => option.toLowerCase() === userInputText.toLowerCase()
-                        );
-                        if (matchedOption) {
-                            displayMessage(userInputText, 'user');
-                            loadQuestion(currentStep.options[matchedOption]);
-                        } else {
-                            displayMessage('Invalid option. Please choose one of the available options.', 'bot');
-                        }
-                    }
-                });
-                userInput.appendChild(sendBtn);
             }
         }
 
