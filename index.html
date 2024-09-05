@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint Selection Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #005f99; /* Blue background for the body */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chat-container {
+            background-color: #007acc; /* Blue background for the chat container */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-window {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        #chat-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-message {
+            margin: 10px 0;
+            max-width: 80%;
+        }
+
+        .bot-message {
+            background-color: #1e90ff; /* Lighter blue for bot messages */
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background-color: #004c8c; /* Darker blue for user messages */
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            align-self: flex-end;
+        }
+
+        button {
+            background-color: #004c8c; /* Darker blue for buttons */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #003b6b; /* Slightly darker blue on hover */
+        }
+
+        #user-input {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-window">
+            <div id="chat-content"></div>
+        </div>
+        <div id="user-input"></div>
+    </div>
+    <script>
+        const questions = {
+            start: {
+                question: "Where are you painting?",
+                options: {
+                    "Inside": "insideDrywall",
+                    "Outside": "outside"
+                }
+            },
+            insideDrywall: {
+                question: "Great! What is the current state of the wall?",
+                options: {
+                    "Raw": "insideRaw",
+                    "Painted": "insidePainted"
+                }
+            },
+            insideRaw: {
+                question: "Since you are painting inside and the wall is Raw, I recommend you buy a Primer and a Washable paint.",
+                options: {
+                    "Next Step": "buyOrConsult"
+                }
+            },
+            insidePainted: {
+                question: "What type of paint was the wall painted with?",
+                options: {
+                    "Water": "insideWater",
+                    "Oil": "insideOil"
+                }
+            },
+            insideWater: {
+                question: "Alright. In that case I recommend you get a Universal Undercoat and a Washable Paint",
+                options: {
+                    "Next Step": "buyOrConsult"
+                }
+            },
+            insideOil: {
+                question: "Alright. In that case I recommend you get an Oil-Based Paint",
+                options: {
+                    "Next Step": "buyOrConsult"
+                }
+            },
+            outside: {
+                question: "Great! What is the current state of the wall?",
+                options: {
+                    "Raw/Plastered": "outsideRaw",
+                    "Painted": "outsidePainted"
+                }
+            },
+            outsideRaw: {
+                question: "Alright. In that case I recommend you get a Plaster or Masonry Primer and a Washable Paint",
+                options: {
+                    "Next Step": "buyOrConsult"
+                }
+            },
+            outsidePainted: {
+                question: "Alright. In that case I recommend you get a Water-Based Paint or Oil-Based Paint",
+                options: {
+                    "Next Step": "buyOrConsult"
+                }
+            },
+            buyOrConsult: {
+                question: "Would you like to buy the recommended product or speak with a consultant via WhatsApp?",
+                options: {
+                    "Buy Now": "buyLink",
+                    "Speak with a Consultant": "consultLink"
+                }
+            },
+            buyLink: {
+                question: "Redirecting to purchase page...",
+                link: "https://www.shafaa.co.za/collections/all" // Replace with your actual link
+            },
+            consultLink: {
+                question: "Redirecting to consultant page...",
+                link: "https://web.whatsapp.com/send?phone=+27677815531&text=Hey,%20I%20have%20a%20question" // Replace with your actual link
+            }
+        };
+
+        const chatContent = document.getElementById('chat-content');
+        const userInput = document.getElementById('user-input');
+
+        function displayMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message');
+            messageDiv.classList.add(type === 'bot' ? 'bot-message' : 'user-message');
+            messageDiv.textContent = message;
+            chatContent.appendChild(messageDiv);
+            chatContent.scrollTop = chatContent.scrollHeight; // Automatic scrolling
+        }
+
+        function loadQuestion(step) {
+            const currentStep = questions[step];
+            displayMessage(currentStep.question, 'bot');
+            
+            if (currentStep.link) {
+                window.location.href = currentStep.link;
+                return;
+            }
+
+            userInput.innerHTML = '';
+
+            for (const [option, nextStep] of Object.entries(currentStep.options)) {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.addEventListener('click', () => {
+                    displayMessage(option, 'user');
+                    loadQuestion(nextStep);
+                });
+                userInput.appendChild(button);
+            }
+        }
+
+        loadQuestion('start');
+    </script>
+</body>
+</html>
